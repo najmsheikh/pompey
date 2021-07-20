@@ -1,0 +1,4 @@
+<resources>
+
+    <style name="Theme.Pompey" parent="@style/Theme.Leanback" />
+</resources>
