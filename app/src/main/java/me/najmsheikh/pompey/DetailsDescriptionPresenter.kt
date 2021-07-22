@@ -1,17 +1,21 @@
 package me.najmsheikh.pompey
 
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter
+import me.najmsheikh.pompey.data.models.Video
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle.LONG
 
 class DetailsDescriptionPresenter : AbstractDetailsDescriptionPresenter() {
 
     override fun onBindDescription(
-        viewHolder: AbstractDetailsDescriptionPresenter.ViewHolder,
-        item: Any
+        viewHolder: ViewHolder,
+        item: Any,
     ) {
-        val movie = item as Media
+        val video = item as Video
 
-        viewHolder.title.text = movie.title
-        viewHolder.subtitle.text = movie.studio
-        viewHolder.body.text = movie.description
+        viewHolder.title.text = video.title
+        viewHolder.subtitle.text =
+            video.releaseDate?.format(DateTimeFormatter.ofLocalizedDate(LONG))
+        viewHolder.body.text = video.description
     }
 }

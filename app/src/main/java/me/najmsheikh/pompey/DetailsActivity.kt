@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
+import me.najmsheikh.pompey.data.models.Video
 
 /**
  * Details activity class that loads [VideoDetailsFragment] class.
@@ -14,12 +15,12 @@ class DetailsActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
         if (savedInstanceState == null) {
-            val media = intent.extras?.getSerializable(EXTRA_MEDIA) as Media
-            val fragment = VideoDetailsFragment.newInstance(media)
+            val video = intent.extras?.getParcelable(EXTRA_MEDIA) as Video
+            val fragment = VideoDetailsFragment.newInstance(video)
 
             supportFragmentManager.beginTransaction()
                 .replace(R.id.details_fragment, fragment)
-                .commitNow();
+                .commitNow()
         }
     }
 
@@ -27,9 +28,9 @@ class DetailsActivity : FragmentActivity() {
         const val SHARED_ELEMENT_NAME = "hero"
         private const val EXTRA_MEDIA = "media"
 
-        fun createLaunchIntent(context: Context, media: Media): Intent {
+        fun createLaunchIntent(context: Context, video: Video): Intent {
             return Intent(context, DetailsActivity::class.java).apply {
-                putExtra(EXTRA_MEDIA, media)
+                putExtra(EXTRA_MEDIA, video)
             }
         }
     }

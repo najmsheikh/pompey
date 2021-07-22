@@ -1,10 +1,13 @@
 package me.najmsheikh.pompey.data.models
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 
 /**
- * Created by Najm Sheikh <hello@najmsheikh.me> on 7/21/21.
+ * Meta-data regarding a content video.
  */
+@Parcelize
 data class Video(
     val id: String,
     val title: String,
@@ -12,4 +15,4 @@ data class Video(
     val posterUrl: String?,
     val backgroundUrl: String?,
     val releaseDate: LocalDate?,
-)
+) : Parcelable

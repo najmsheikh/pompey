@@ -19,12 +19,14 @@ import androidx.leanback.widget.ListRowPresenter
 import androidx.leanback.widget.Presenter
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.FutureTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.Collections
+import me.najmsheikh.pompey.data.api.tmdb.TmdbApiServiceGenerator
+import me.najmsheikh.pompey.data.models.Video
+import me.najmsheikh.pompey.data.repository.VideoRepository
 
 /**
  * Loads a grid of cards with movies to browse.
@@ -35,12 +37,13 @@ class MainFragment : BrowseSupportFragment() {
     private lateinit var backgroundManager: BackgroundManager
     private var defaultBackground: Drawable? = null
     private var backgroundLoadingJob: Job? = null
-    private var bgLoadingJob: FutureTarget<Drawable>? = null
 
-    private lateinit var rowAdapter: ArrayObjectAdapter
+    private lateinit var videoRepository: VideoRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        videoRepository = VideoRepository(TmdbApiServiceGenerator.apiService)
 
         prepareBackgroundManager()
         setupUIElements()
@@ -58,29 +61,24 @@ class MainFragment : BrowseSupportFragment() {
 
     private fun setupUIElements() {
         title = getString(R.string.browse_title)
-        headersState = HEADERS_ENABLED
+        headersState = HEADERS_DISABLED
         isHeadersTransitionOnBackEnabled = true
-        brandColor = ContextCompat.getColor(requireContext(), R.color.fastlane_background)
+        brandColor = ContextCompat.getColor(requireContext(), R.color.header_background)
         searchAffordanceColor = ContextCompat.getColor(requireContext(), R.color.search_opaque)
     }
 
     private fun loadRows() {
-        val list = MovieList.list
-
         val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
         val cardPresenter = CardPresenter()
+        val trendingRowAdapter = ArrayObjectAdapter(cardPresenter)
 
-        for (i in 0 until NUM_ROWS) {
-            if (i != 0) {
-                Collections.shuffle(list)
-            }
-            val listRowAdapter = ArrayObjectAdapter(cardPresenter)
-            for (j in 0 until NUM_COLS) {
-                listRowAdapter.add(list[j % 5])
-            }
-            val header = HeaderItem(i.toLong(), MovieList.MOVIE_CATEGORY[i])
-            rowsAdapter.add(ListRow(header, listRowAdapter))
+        lifecycleScope.launchWhenCreated {
+            val trendingVideos = videoRepository.getAllTrendingContentForWeek()
+            trendingRowAdapter.setItems(trendingVideos, null)
         }
+
+        rowsAdapter.add(ListRow(HeaderItem(resources.getString(R.string.title_trending)),
+            trendingRowAdapter))
 
         val gridHeader = HeaderItem(NUM_ROWS.toLong(), "PREFERENCES")
 
@@ -100,13 +98,13 @@ class MainFragment : BrowseSupportFragment() {
         }
 
         setOnItemViewSelectedListener { _, item, _, _ ->
-            if (item is Media) {
-                enqueueLoadingBackground(item.backgroundImageUrl)
+            if (item is Video) {
+                enqueueLoadingBackground(item.backgroundUrl)
             }
         }
 
         setOnItemViewClickedListener { itemViewHolder, item, _, _ ->
-            if (item is Media) {
+            if (item is Video) {
                 val intent = DetailsActivity.createLaunchIntent(requireContext(), item)
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     requireActivity(),
@@ -122,6 +120,7 @@ class MainFragment : BrowseSupportFragment() {
     private fun enqueueLoadingBackground(backgroundImageUrl: String?) {
         backgroundLoadingJob?.cancel()
         backgroundLoadingJob = lifecycleScope.launch(Dispatchers.IO) {
+            delay(BACKGROUND_UPDATE_DELAY)
             val width = displayMetrics.widthPixels
             val height = displayMetrics.heightPixels
 
@@ -142,7 +141,7 @@ class MainFragment : BrowseSupportFragment() {
 
     private inner class GridItemPresenter : Presenter() {
 
-        override fun onCreateViewHolder(parent: ViewGroup): Presenter.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
             val view = TextView(parent.context)
             view.layoutParams = ViewGroup.LayoutParams(GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT)
             view.isFocusable = true
@@ -150,18 +149,18 @@ class MainFragment : BrowseSupportFragment() {
             view.setBackgroundColor(ContextCompat.getColor(context!!, R.color.default_background))
             view.setTextColor(Color.WHITE)
             view.gravity = Gravity.CENTER
-            return Presenter.ViewHolder(view)
+            return ViewHolder(view)
         }
 
-        override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
+        override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
             (viewHolder.view as TextView).text = item as String
         }
 
-        override fun onUnbindViewHolder(viewHolder: Presenter.ViewHolder) {}
+        override fun onUnbindViewHolder(viewHolder: ViewHolder) {}
     }
 
     companion object {
-        private val BACKGROUND_UPDATE_DELAY = 300
+        private val BACKGROUND_UPDATE_DELAY = 300L
         private val GRID_ITEM_WIDTH = 200
         private val GRID_ITEM_HEIGHT = 200
         private val NUM_ROWS = 6
