@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
-import me.najmsheikh.pompey.data.models.Video
+import me.najmsheikh.pompey.data.models.MediaContent
 import kotlin.properties.Delegates
 
 /**
@@ -39,14 +39,14 @@ class CardPresenter : Presenter() {
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
-        val movie = item as Video
+        val media = item as MediaContent
         val cardView = viewHolder.view as ImageCardView
 
-        cardView.titleText = movie.title
-        cardView.contentText = movie.releaseDate.toString()
+        cardView.titleText = media.title
+        cardView.contentText = media.releaseDate.toString()
         cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
         Glide.with(viewHolder.view.context)
-            .load(movie.posterUrl)
+            .load(media.posterUrl)
             .centerCrop()
             .fitCenter()
             .error(defaultPoster)

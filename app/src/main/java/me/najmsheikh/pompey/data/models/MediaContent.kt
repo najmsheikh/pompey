@@ -4,9 +4,9 @@ import android.os.Parcelable
 import java.time.LocalDate
 
 /**
- * Meta-data regarding a content video.
+ * Meta-data regarding a media content.
  */
-interface Video : Parcelable {
+interface MediaContent : Parcelable {
     val id: String
     val title: String
     val description: String
@@ -14,5 +14,5 @@ interface Video : Parcelable {
     val posterUrl: String?
     val backgroundUrl: String?
     val releaseDate: LocalDate?
-    val recommendations: List<Video>
+    val recommendations: List<MediaContent>
 }

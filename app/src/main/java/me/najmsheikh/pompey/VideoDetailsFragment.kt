@@ -29,8 +29,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import me.najmsheikh.pompey.data.api.tmdb.TmdbApiServiceGenerator
-import me.najmsheikh.pompey.data.models.Video
-import me.najmsheikh.pompey.data.repository.VideoRepository
+import me.najmsheikh.pompey.data.models.MediaContent
+import me.najmsheikh.pompey.data.repository.MediaRepository
 import kotlin.math.roundToInt
 
 /**
@@ -42,20 +42,20 @@ class VideoDetailsFragment : DetailsSupportFragment() {
     private lateinit var detailsBackground: DetailsSupportFragmentBackgroundController
     private lateinit var presenterSelector: ClassPresenterSelector
     private lateinit var rowAdapter: ArrayObjectAdapter
-    private lateinit var videoRepository: VideoRepository
+    private lateinit var mediaRepository: MediaRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val passedVideo = arguments?.getParcelable(ARG_MEDIA) as Video
+        val passedMedia = arguments?.getParcelable(ARG_MEDIA) as MediaContent
         detailsBackground = DetailsSupportFragmentBackgroundController(this)
         presenterSelector = ClassPresenterSelector()
         rowAdapter = ArrayObjectAdapter(presenterSelector)
-        videoRepository = VideoRepository(TmdbApiServiceGenerator.apiService)
+        mediaRepository = MediaRepository(TmdbApiServiceGenerator.apiService)
         onItemViewClickedListener = ItemViewClickedListener()
 
         lifecycleScope.launchWhenCreated {
-            val video = videoRepository.getMovieDetails(passedVideo.id) // TODO: Support shows
+            val video = mediaRepository.getMovieDetails(passedMedia.id) // TODO: Support shows
 
             setupDetailsOverviewRow(video)
             setupDetailsOverviewRowPresenter(video)
@@ -66,14 +66,14 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         }
     }
 
-    private fun initializeBackground(video: Video) {
+    private fun initializeBackground(media: MediaContent) {
         detailsBackground.enableParallax()
         Glide.with(requireContext())
             .asBitmap()
             .centerCrop()
             .fitCenter()
             .error(R.drawable.default_background)
-            .load(video.backgroundUrl)
+            .load(media.backgroundUrl)
             .into<CustomTarget<Bitmap>>(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(
                     bitmap: Bitmap,
@@ -89,14 +89,14 @@ class VideoDetailsFragment : DetailsSupportFragment() {
             })
     }
 
-    private fun setupDetailsOverviewRow(video: Video) {
-        val row = DetailsOverviewRow(video)
+    private fun setupDetailsOverviewRow(media: MediaContent) {
+        val row = DetailsOverviewRow(media)
         row.imageDrawable =
             ContextCompat.getDrawable(requireContext(), R.drawable.default_background)
         val width = convertDpToPixel(requireContext(), DETAIL_THUMB_WIDTH)
         val height = convertDpToPixel(requireContext(), DETAIL_THUMB_HEIGHT)
         Glide.with(requireContext())
-            .load(video.posterUrl)
+            .load(media.posterUrl)
             .centerCrop()
             .fitCenter()
             .error(R.drawable.default_background)
@@ -142,7 +142,7 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         rowAdapter.add(row)
     }
 
-    private fun setupDetailsOverviewRowPresenter(video: Video) {
+    private fun setupDetailsOverviewRowPresenter(media: MediaContent) {
         // Set detail background.
         val detailsPresenter = FullWidthDetailsOverviewRowPresenter(DetailsDescriptionPresenter())
         detailsPresenter.backgroundColor = ContextCompat.getColor(
@@ -159,7 +159,7 @@ class VideoDetailsFragment : DetailsSupportFragment() {
 
         detailsPresenter.onActionClickedListener = OnActionClickedListener { action ->
             if (action.id == ACTION_WATCH_TRAILER) {
-                val intent = PlaybackActivity.createLaunchIntent(requireContext(), video)
+                val intent = PlaybackActivity.createLaunchIntent(requireContext(), media)
                 startActivity(intent)
             } else {
                 Toast.makeText(requireContext(), action.toString(), Toast.LENGTH_SHORT).show()
@@ -168,11 +168,11 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         presenterSelector.addClassPresenter(DetailsOverviewRow::class.java, detailsPresenter)
     }
 
-    private fun setupRelatedContentRow(video: Video) {
+    private fun setupRelatedContentRow(media: MediaContent) {
         val subcategories = arrayOf(getString(R.string.related_content))
         val listRowAdapter = ArrayObjectAdapter(CardPresenter())
 
-        video.recommendations.forEach(listRowAdapter::add)
+        media.recommendations.forEach(listRowAdapter::add)
 
         val header = HeaderItem(0, subcategories[0])
         rowAdapter.add(ListRow(header, listRowAdapter))
@@ -191,7 +191,7 @@ class VideoDetailsFragment : DetailsSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder,
             row: Row
         ) {
-            if (item is Video) {
+            if (item is MediaContent) {
                 val intent = DetailsActivity.createLaunchIntent(requireContext(), item)
 
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
@@ -214,10 +214,10 @@ class VideoDetailsFragment : DetailsSupportFragment() {
 
         private const val ARG_MEDIA = "media"
 
-        fun newInstance(video: Video): VideoDetailsFragment {
+        fun newInstance(media: MediaContent): VideoDetailsFragment {
             val fragment = VideoDetailsFragment()
             fragment.arguments = Bundle().apply {
-                putParcelable(ARG_MEDIA, video)
+                putParcelable(ARG_MEDIA, media)
             }
             return fragment
         }

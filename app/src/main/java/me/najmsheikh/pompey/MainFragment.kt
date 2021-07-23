@@ -25,8 +25,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import me.najmsheikh.pompey.data.api.tmdb.TmdbApiServiceGenerator
-import me.najmsheikh.pompey.data.models.Video
-import me.najmsheikh.pompey.data.repository.VideoRepository
+import me.najmsheikh.pompey.data.models.MediaContent
+import me.najmsheikh.pompey.data.repository.MediaRepository
 
 /**
  * Loads a grid of cards with movies to browse.
@@ -38,12 +38,12 @@ class MainFragment : BrowseSupportFragment() {
     private var defaultBackground: Drawable? = null
     private var backgroundLoadingJob: Job? = null
 
-    private lateinit var videoRepository: VideoRepository
+    private lateinit var mediaRepository: MediaRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        videoRepository = VideoRepository(TmdbApiServiceGenerator.apiService)
+        mediaRepository = MediaRepository(TmdbApiServiceGenerator.apiService)
 
         prepareBackgroundManager()
         setupUIElements()
@@ -73,8 +73,8 @@ class MainFragment : BrowseSupportFragment() {
         val trendingRowAdapter = ArrayObjectAdapter(cardPresenter)
 
         lifecycleScope.launchWhenCreated {
-            val trendingVideos = videoRepository.getAllTrendingContentForWeek()
-            trendingRowAdapter.setItems(trendingVideos, null)
+            val trendingMedia = mediaRepository.getAllTrendingContentForWeek()
+            trendingRowAdapter.setItems(trendingMedia, null)
         }
 
         rowsAdapter.add(ListRow(HeaderItem(resources.getString(R.string.title_trending)),
@@ -98,13 +98,13 @@ class MainFragment : BrowseSupportFragment() {
         }
 
         setOnItemViewSelectedListener { _, item, _, _ ->
-            if (item is Video) {
+            if (item is MediaContent) {
                 enqueueLoadingBackground(item.backgroundUrl)
             }
         }
 
         setOnItemViewClickedListener { itemViewHolder, item, _, _ ->
-            if (item is Video) {
+            if (item is MediaContent) {
                 val intent = DetailsActivity.createLaunchIntent(requireContext(), item)
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     requireActivity(),

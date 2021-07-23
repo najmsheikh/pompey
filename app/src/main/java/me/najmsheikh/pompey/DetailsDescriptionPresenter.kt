@@ -1,7 +1,7 @@
 package me.najmsheikh.pompey
 
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter
-import me.najmsheikh.pompey.data.models.Video
+import me.najmsheikh.pompey.data.models.MediaContent
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle.LONG
 
@@ -11,11 +11,11 @@ class DetailsDescriptionPresenter : AbstractDetailsDescriptionPresenter() {
         viewHolder: ViewHolder,
         item: Any,
     ) {
-        val video = item as Video
+        val media = item as MediaContent
 
-        viewHolder.title.text = video.title
+        viewHolder.title.text = media.title
         viewHolder.subtitle.text =
-            video.releaseDate?.format(DateTimeFormatter.ofLocalizedDate(LONG))
-        viewHolder.body.text = video.description
+            media.releaseDate?.format(DateTimeFormatter.ofLocalizedDate(LONG))
+        viewHolder.body.text = media.description
     }
 }

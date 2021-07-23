@@ -3,16 +3,16 @@ package me.najmsheikh.pompey.data.repository
 import me.najmsheikh.pompey.data.api.tmdb.Result
 import me.najmsheikh.pompey.data.api.tmdb.TmdbApiService
 import me.najmsheikh.pompey.data.models.Episode
+import me.najmsheikh.pompey.data.models.MediaContent
 import me.najmsheikh.pompey.data.models.Movie
-import me.najmsheikh.pompey.data.models.Video
 import java.time.LocalDate
 
 /**
- * Data repository for all video content.
+ * Data repository for all media content.
  */
-class VideoRepository(private val tmdbApiService: TmdbApiService) {
+class MediaRepository(private val tmdbApiService: TmdbApiService) {
 
-    suspend fun getAllTrendingContentForWeek(pageNumber: Int = 1): List<Video> {
+    suspend fun getAllTrendingContentForWeek(pageNumber: Int = 1): List<MediaContent> {
         val response = tmdbApiService.getTrending(
             mediaType = "all",
             timeWindow = "week",
@@ -28,7 +28,7 @@ class VideoRepository(private val tmdbApiService: TmdbApiService) {
         return convertModel(response) as Movie
     }
 
-    private fun convertModel(result: Result): Video {
+    private fun convertModel(result: Result): MediaContent {
         return if (result.mediaType == "tv") {
             Episode(
                 id = result.id.toString(),

@@ -15,5 +15,5 @@ data class Movie(
     override val posterUrl: String?,
     override val backgroundUrl: String?,
     override val releaseDate: LocalDate?,
-    override val recommendations: List<Video>,
-) : Video
+    override val recommendations: List<MediaContent>,
+) : MediaContent
