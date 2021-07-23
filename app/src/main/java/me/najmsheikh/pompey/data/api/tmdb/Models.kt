@@ -18,9 +18,10 @@ data class Result(
     @SerializedName("overview") val description: String,
     @SerializedName("popularity") val popularity: Double,
     @SerializedName("media_type") val mediaType: String,
+    @SerializedName("recommendations") val recommendations: Response?,
 )
 
-data class TrendingResponse(
+data class Response(
     @SerializedName("page") val page: Int,
     @SerializedName("results") val results: List<Result>,
     @SerializedName("total_pages") val totalPages: Int,

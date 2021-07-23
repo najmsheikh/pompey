@@ -24,7 +24,10 @@ interface TmdbApiService : ApiService {
         @Path("type") mediaType: String = "all",
         @Path("window") timeWindow: String = "day",
         @Query("page") pageNumber: Int = 1,
-    ): TrendingResponse
+    ): Response
+
+    @GET("/3/movie/{movie_id}?append_to_response=recommendations")
+    suspend fun getMovieDetails(@Path("movie_id") movieId: String): Result
 
 }
 

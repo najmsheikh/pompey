@@ -24,10 +24,13 @@ import androidx.leanback.widget.OnItemViewClickedListener
 import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import me.najmsheikh.pompey.data.api.tmdb.TmdbApiServiceGenerator
 import me.najmsheikh.pompey.data.models.Video
+import me.najmsheikh.pompey.data.repository.VideoRepository
 import kotlin.math.roundToInt
 
 /**
@@ -36,26 +39,31 @@ import kotlin.math.roundToInt
  */
 class VideoDetailsFragment : DetailsSupportFragment() {
 
-    private lateinit var selectedVideo: Video
     private lateinit var detailsBackground: DetailsSupportFragmentBackgroundController
     private lateinit var presenterSelector: ClassPresenterSelector
     private lateinit var rowAdapter: ArrayObjectAdapter
+    private lateinit var videoRepository: VideoRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        selectedVideo = arguments?.getParcelable(ARG_MEDIA) as Video
+        val passedVideo = arguments?.getParcelable(ARG_MEDIA) as Video
         detailsBackground = DetailsSupportFragmentBackgroundController(this)
         presenterSelector = ClassPresenterSelector()
         rowAdapter = ArrayObjectAdapter(presenterSelector)
-
-        adapter = rowAdapter
+        videoRepository = VideoRepository(TmdbApiServiceGenerator.apiService)
         onItemViewClickedListener = ItemViewClickedListener()
 
-        setupDetailsOverviewRow()
-        setupDetailsOverviewRowPresenter()
-//        setupRelatedMovieListRow()
-        initializeBackground(selectedVideo)
+        lifecycleScope.launchWhenCreated {
+            val video = videoRepository.getMovieDetails(passedVideo.id) // TODO: Support shows
+
+            setupDetailsOverviewRow(video)
+            setupDetailsOverviewRowPresenter(video)
+            setupRelatedContentRow(video)
+
+            adapter = rowAdapter
+            initializeBackground(video)
+        }
     }
 
     private fun initializeBackground(video: Video) {
@@ -81,14 +89,14 @@ class VideoDetailsFragment : DetailsSupportFragment() {
             })
     }
 
-    private fun setupDetailsOverviewRow() {
-        val row = DetailsOverviewRow(selectedVideo)
+    private fun setupDetailsOverviewRow(video: Video) {
+        val row = DetailsOverviewRow(video)
         row.imageDrawable =
             ContextCompat.getDrawable(requireContext(), R.drawable.default_background)
         val width = convertDpToPixel(requireContext(), DETAIL_THUMB_WIDTH)
         val height = convertDpToPixel(requireContext(), DETAIL_THUMB_HEIGHT)
         Glide.with(requireContext())
-            .load(selectedVideo.posterUrl)
+            .load(video.posterUrl)
             .centerCrop()
             .fitCenter()
             .error(R.drawable.default_background)
@@ -134,7 +142,7 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         rowAdapter.add(row)
     }
 
-    private fun setupDetailsOverviewRowPresenter() {
+    private fun setupDetailsOverviewRowPresenter(video: Video) {
         // Set detail background.
         val detailsPresenter = FullWidthDetailsOverviewRowPresenter(DetailsDescriptionPresenter())
         detailsPresenter.backgroundColor = ContextCompat.getColor(
@@ -151,7 +159,7 @@ class VideoDetailsFragment : DetailsSupportFragment() {
 
         detailsPresenter.onActionClickedListener = OnActionClickedListener { action ->
             if (action.id == ACTION_WATCH_TRAILER) {
-                val intent = PlaybackActivity.createLaunchIntent(requireContext(), selectedVideo)
+                val intent = PlaybackActivity.createLaunchIntent(requireContext(), video)
                 startActivity(intent)
             } else {
                 Toast.makeText(requireContext(), action.toString(), Toast.LENGTH_SHORT).show()
@@ -160,9 +168,11 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         presenterSelector.addClassPresenter(DetailsOverviewRow::class.java, detailsPresenter)
     }
 
-    private fun setupRelatedMovieListRow() {
-        val subcategories = arrayOf(getString(R.string.related_movies))
+    private fun setupRelatedContentRow(video: Video) {
+        val subcategories = arrayOf(getString(R.string.related_content))
         val listRowAdapter = ArrayObjectAdapter(CardPresenter())
+
+        video.recommendations.forEach(listRowAdapter::add)
 
         val header = HeaderItem(0, subcategories[0])
         rowAdapter.add(ListRow(header, listRowAdapter))
