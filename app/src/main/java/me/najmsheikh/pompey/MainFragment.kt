@@ -36,6 +36,7 @@ class MainFragment : BrowseSupportFragment() {
     private lateinit var displayMetrics: DisplayMetrics
     private lateinit var backgroundManager: BackgroundManager
     private var defaultBackground: Drawable? = null
+    private var lastLoadedBackground: Drawable? = null
     private var backgroundLoadingJob: Job? = null
 
     private lateinit var mediaRepository: MediaRepository
@@ -49,6 +50,11 @@ class MainFragment : BrowseSupportFragment() {
         setupUIElements()
         loadRows()
         setupEventListeners()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        backgroundManager.drawable = lastLoadedBackground
     }
 
     private fun prepareBackgroundManager() {
@@ -133,6 +139,7 @@ class MainFragment : BrowseSupportFragment() {
 
             if (isActive) {
                 backgroundManager.drawable = task.get()
+                lastLoadedBackground = backgroundManager.drawable
             } else {
                 task.cancel(true)
             }

@@ -78,7 +78,6 @@ class VideoDetailsFragment : DetailsSupportFragment() {
     }
 
     private fun initializeBackground(media: MediaContent) {
-        detailsBackground.enableParallax()
         Glide.with(requireContext())
             .asBitmap()
             .centerCrop()
@@ -91,6 +90,7 @@ class VideoDetailsFragment : DetailsSupportFragment() {
                     transition: Transition<in Bitmap>?,
                 ) {
                     detailsBackground.coverBitmap = bitmap
+                    detailsBackground.enableParallax()
                     rowAdapter.notifyArrayItemRangeChanged(0, rowAdapter.size())
                 }
 
