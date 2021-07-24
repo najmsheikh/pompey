@@ -26,9 +26,46 @@ interface TmdbApiService : ApiService {
         @Query("page") pageNumber: Int = 1,
     ): Response
 
+    /**
+     * Get the primary information about a movie by ID.
+     *
+     * @param movieId the movie ID
+     */
     @GET("/3/movie/{movie_id}?append_to_response=recommendations")
     suspend fun getMovieDetails(@Path("movie_id") movieId: String): Result
 
+    /**
+     * Get the primary TV show details by ID.
+     *
+     * @param showId the show ID
+     */
+    @GET("/3/tv/{tv_id}?append_to_response=recommendations")
+    suspend fun getShowDetails(@Path("tv_id") showId: String): Result
+
+    /**
+     * Get the TV season details by ID.
+     *
+     * @param showId the show ID
+     * @param seasonNumber the specific season
+     */
+    @GET("/3/tv/{tv_id}/season/{season_number}")
+    suspend fun getShowSeasonDetails(
+        @Path("tv_id") showId: String,
+        @Path("season_number") seasonNumber: Int,
+    ): Result
+
+    /**
+     * Get the TV episode details by ID.
+     *
+     * @param showId the show ID
+     * @param seasonNumber the specific season
+     * @param episodeNumber the specific episode
+     */
+    @GET("/3/tv/{tv_id}/season/{season_number}/episode/{episode_number}?append_to_response=external_ids")
+    suspend fun getEpisodeDetails(
+        @Path("tv_id") showId: String,
+        @Path("season_number") seasonNumber: Int,
+        @Path("episode_number") episodeNumber: Int,
+    )
+
 }
-
-

@@ -8,6 +8,7 @@ import java.time.LocalDate
  */
 interface MediaContent : Parcelable {
     val id: String
+    val imdbId: String?
     val title: String
     val description: String
     val tagline: String?

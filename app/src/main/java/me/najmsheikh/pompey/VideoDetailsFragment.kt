@@ -30,6 +30,8 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import me.najmsheikh.pompey.data.api.tmdb.TmdbApiServiceGenerator
 import me.najmsheikh.pompey.data.models.MediaContent
+import me.najmsheikh.pompey.data.models.Movie
+import me.najmsheikh.pompey.data.models.Show
 import me.najmsheikh.pompey.data.repository.MediaRepository
 import kotlin.math.roundToInt
 
@@ -55,14 +57,23 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         onItemViewClickedListener = ItemViewClickedListener()
 
         lifecycleScope.launchWhenCreated {
-            val video = mediaRepository.getMovieDetails(passedMedia.id) // TODO: Support shows
+            val media = when (passedMedia) {
+                is Movie -> mediaRepository.getMovieDetails(passedMedia.id)
+                is Show -> mediaRepository.getShowDetails(passedMedia.id)
+                else -> null
+            }
 
-            setupDetailsOverviewRow(video)
-            setupDetailsOverviewRowPresenter(video)
-            setupRelatedContentRow(video)
+            if (media == null) {
+                activity?.finish()
+                return@launchWhenCreated
+            }
+
+            setupDetailsOverviewRow(media)
+            setupDetailsOverviewRowPresenter(media)
+            setupRelatedContentRow(media)
 
             adapter = rowAdapter
-            initializeBackground(video)
+            initializeBackground(media)
         }
     }
 

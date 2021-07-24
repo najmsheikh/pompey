@@ -3,22 +3,21 @@ package me.najmsheikh.pompey.data.api.tmdb
 import com.google.gson.annotations.SerializedName
 
 data class Result(
-    @SerializedName("release_date", alternate = ["first_air_date"]) val releaseDate: String,
-    @SerializedName("adult") val isAdult: Boolean,
+    @SerializedName("release_date",
+        alternate = ["first_air_date", "air_date"]) val releaseDate: String,
     @SerializedName("backdrop_path") val backgroundUrl: String,
     @SerializedName("id") val id: Int,
-    @SerializedName("genre_ids") val genreIds: List<Int>,
-    @SerializedName("original_language") val originalLanguage: String,
-    @SerializedName("original_title", alternate = ["original_name"]) val originalTitle: String,
-    @SerializedName("poster_path") val posterUrl: String,
-    @SerializedName("vote_count") val voteCount: Int,
-    @SerializedName("video") val hasVideo: Boolean,
-    @SerializedName("vote_average") val voteAverage: Double,
+    @SerializedName("imdb_id") val imdbId: String?,
+    @SerializedName("poster_path", alternate = ["still_path"]) val posterUrl: String,
     @SerializedName("title", alternate = ["name"]) val title: String,
     @SerializedName("overview") val description: String,
-    @SerializedName("popularity") val popularity: Double,
-    @SerializedName("media_type") val mediaType: String,
+    @SerializedName("tagline") val tagline: String?,
+    @SerializedName("media_type", alternate = ["type"]) val mediaType: String,
     @SerializedName("recommendations") val recommendations: Response?,
+    @SerializedName("seasons") val seasons: List<Result>?,
+    @SerializedName("season_number") val seasonNumber: Int?,
+    @SerializedName("episodes") val episodes: List<Result>?,
+    @SerializedName("episode_number") val episodeNumber: Int?,
 )
 
 data class Response(

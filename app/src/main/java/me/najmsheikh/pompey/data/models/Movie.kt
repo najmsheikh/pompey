@@ -9,6 +9,7 @@ import java.time.LocalDate
 @Parcelize
 data class Movie(
     override val id: String,
+    override val imdbId: String?,
     override val title: String,
     override val description: String,
     override val tagline: String?,
