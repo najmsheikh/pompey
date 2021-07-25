@@ -4,8 +4,8 @@ import com.google.gson.annotations.SerializedName
 
 data class Result(
     @SerializedName("release_date",
-        alternate = ["first_air_date", "air_date"]) val releaseDate: String,
-    @SerializedName("backdrop_path") val backgroundUrl: String,
+        alternate = ["first_air_date", "air_date"]) val releaseDate: String?,
+    @SerializedName("backdrop_path") val backgroundUrl: String?,
     @SerializedName("id") val id: Int,
     @SerializedName("imdb_id") val imdbId: String?,
     @SerializedName("poster_path", alternate = ["still_path"]) val posterUrl: String,

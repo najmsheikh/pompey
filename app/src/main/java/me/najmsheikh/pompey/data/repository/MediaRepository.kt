@@ -46,7 +46,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
                 tagline = result.tagline,
                 posterUrl = "https://image.tmdb.org/t/p/w342${result.posterUrl}",
                 backgroundUrl = "https://image.tmdb.org/t/p/original${result.backgroundUrl}",
-                releaseDate = result.releaseDate.let { LocalDate.parse(it) },
+                releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
                 recommendations = result.recommendations?.results?.map { rec ->
                     convertMediaModel(rec)
                 } ?: emptyList(),
@@ -63,7 +63,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
                 tagline = result.tagline,
                 posterUrl = "https://image.tmdb.org/t/p/w342${result.posterUrl}",
                 backgroundUrl = "https://image.tmdb.org/t/p/original${result.backgroundUrl}",
-                releaseDate = result.releaseDate.let { LocalDate.parse(it) },
+                releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
                 recommendations = result.recommendations?.results?.map { rec ->
                     convertMediaModel(rec)
                 } ?: emptyList()
@@ -78,7 +78,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
             seasonNumber = result.seasonNumber ?: 1,
             description = result.description,
             posterUrl = result.posterUrl,
-            releaseDate = result.releaseDate.let { LocalDate.parse(it) },
+            releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
             episodes = result.episodes?.map { episode ->
                 convertEpisodeModel(episode)
             } ?: emptyList()
@@ -93,7 +93,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
             title = result.title,
             description = result.description,
             posterUrl = result.posterUrl,
-            releaseDate = result.releaseDate.let { LocalDate.parse(it) },
+            releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
         )
     }
 }
