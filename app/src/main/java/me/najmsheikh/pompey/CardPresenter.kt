@@ -30,7 +30,7 @@ class CardPresenter(
     private var defaultBackgroundColor: Int by Delegates.notNull()
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
-        defaultPoster = ContextCompat.getDrawable(parent.context, R.drawable.movie)
+        defaultPoster = ContextCompat.getDrawable(parent.context, R.drawable.placeholder_content)
         selectedBackgroundColor =
             ContextCompat.getColor(parent.context, R.color.selected_background)
         defaultBackgroundColor = ContextCompat.getColor(parent.context, R.color.default_background)
