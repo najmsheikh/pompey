@@ -9,13 +9,13 @@ import androidx.leanback.widget.PlaybackControlsRow
 import me.najmsheikh.pompey.data.models.MediaContent
 
 /** Handles video playback with media controls. */
-class PlaybackVideoFragment : VideoSupportFragment() {
+class MediaContentPlaybackFragment : VideoSupportFragment() {
 
     companion object {
         private const val ARG_MEDIA = "media"
 
-        fun newInstance(media: MediaContent): PlaybackVideoFragment {
-            val fragment = PlaybackVideoFragment()
+        fun newInstance(media: MediaContent): MediaContentPlaybackFragment {
+            val fragment = MediaContentPlaybackFragment()
             fragment.arguments = Bundle().apply {
                 putParcelable(ARG_MEDIA, media)
             }
@@ -31,7 +31,7 @@ class PlaybackVideoFragment : VideoSupportFragment() {
 
         val media = arguments?.getParcelable(ARG_MEDIA) as MediaContent
 
-        val glueHost = VideoSupportFragmentGlueHost(this@PlaybackVideoFragment)
+        val glueHost = VideoSupportFragmentGlueHost(this@MediaContentPlaybackFragment)
         playerAdapter = MediaPlayerAdapter(context)
 
         transportControlGlue = PlaybackTransportControlGlue(activity, playerAdapter)

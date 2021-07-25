@@ -4,6 +4,6 @@
     android:id="@+id/details_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetailsActivity"
+    tools:context=".MediaContentDetailsActivity"
     tools:deviceIds="tv"
     />

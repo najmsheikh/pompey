@@ -22,7 +22,8 @@ import me.najmsheikh.pompey.data.repository.MediaRepository
 /**
  * Created by Najm Sheikh <hello@najmsheikh.me> on 7/25/21.
  */
-class VideoSearchFragment : SearchSupportFragment(), SearchSupportFragment.SearchResultProvider {
+class MediaContentSearchFragment : SearchSupportFragment(),
+    SearchSupportFragment.SearchResultProvider {
 
     private lateinit var mediaRepository: MediaRepository
     private lateinit var rowsAdapter: ArrayObjectAdapter
@@ -41,11 +42,11 @@ class VideoSearchFragment : SearchSupportFragment(), SearchSupportFragment.Searc
         setSearchResultProvider(this)
         setOnItemViewClickedListener { itemViewHolder, item, _, _ ->
             if (item is MediaContent) {
-                val intent = DetailsActivity.createLaunchIntent(requireContext(), item)
+                val intent = MediaContentDetailsActivity.createLaunchIntent(requireContext(), item)
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     requireActivity(),
                     (itemViewHolder.view as ImageCardView).mainImageView,
-                    DetailsActivity.SHARED_ELEMENT_NAME
+                    MediaContentDetailsActivity.SHARED_ELEMENT_NAME
                 )
                     .toBundle()
                 startActivity(intent, bundle)
@@ -85,8 +86,8 @@ class VideoSearchFragment : SearchSupportFragment(), SearchSupportFragment.Searc
 
     companion object {
 
-        fun newInstance(): VideoSearchFragment {
-            return VideoSearchFragment()
+        fun newInstance(): MediaContentSearchFragment {
+            return MediaContentSearchFragment()
         }
 
     }

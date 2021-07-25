@@ -86,21 +86,12 @@ class MainFragment : BrowseSupportFragment() {
         rowsAdapter.add(ListRow(HeaderItem(resources.getString(R.string.title_trending)),
             trendingRowAdapter))
 
-        val gridHeader = HeaderItem(NUM_ROWS.toLong(), "PREFERENCES")
-
-        val mGridPresenter = GridItemPresenter()
-        val gridRowAdapter = ArrayObjectAdapter(mGridPresenter)
-        gridRowAdapter.add(resources.getString(R.string.grid_view))
-        gridRowAdapter.add(getString(R.string.error_fragment))
-        gridRowAdapter.add(resources.getString(R.string.personal_settings))
-        rowsAdapter.add(ListRow(gridHeader, gridRowAdapter))
-
         adapter = rowsAdapter
     }
 
     private fun setupEventListeners() {
         setOnSearchClickedListener {
-            val intent = VideoSearchActivity.createLaunchIntent(requireContext())
+            val intent = MediaContentSearchActivity.createLaunchIntent(requireContext())
             startActivity(intent)
         }
 
@@ -112,11 +103,11 @@ class MainFragment : BrowseSupportFragment() {
 
         setOnItemViewClickedListener { itemViewHolder, item, _, _ ->
             if (item is MediaContent) {
-                val intent = DetailsActivity.createLaunchIntent(requireContext(), item)
+                val intent = MediaContentDetailsActivity.createLaunchIntent(requireContext(), item)
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     requireActivity(),
                     (itemViewHolder.view as ImageCardView).mainImageView,
-                    DetailsActivity.SHARED_ELEMENT_NAME
+                    MediaContentDetailsActivity.SHARED_ELEMENT_NAME
                 )
                     .toBundle()
                 startActivity(intent, bundle)

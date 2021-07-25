@@ -42,7 +42,7 @@ import kotlin.math.roundToInt
  * A wrapper fragment for leanback details screens.
  * It shows a detailed view of video and its metadata plus related videos.
  */
-class VideoDetailsFragment : DetailsSupportFragment() {
+class MediaContentDetailsFragment : DetailsSupportFragment() {
 
     private lateinit var detailsBackground: DetailsSupportFragmentBackgroundController
     private lateinit var presenterSelector: ClassPresenterSelector
@@ -175,14 +175,15 @@ class VideoDetailsFragment : DetailsSupportFragment() {
         // Hook up transition element.
         val sharedElementHelper = FullWidthDetailsOverviewSharedElementHelper()
         sharedElementHelper.setSharedElementEnterTransition(
-            activity, DetailsActivity.SHARED_ELEMENT_NAME
+            activity, MediaContentDetailsActivity.SHARED_ELEMENT_NAME
         )
         detailsPresenter.setListener(sharedElementHelper)
         detailsPresenter.isParticipatingEntranceTransition = true
 
         detailsPresenter.onActionClickedListener = OnActionClickedListener { action ->
             if (action.id == ACTION_WATCH) {
-                val intent = PlaybackActivity.createLaunchIntent(requireContext(), media)
+                val intent =
+                    MediaContentPlaybackActivity.createLaunchIntent(requireContext(), media)
                 startActivity(intent)
             } else {
                 Toast.makeText(requireContext(), action.toString(), Toast.LENGTH_SHORT).show()
@@ -244,12 +245,12 @@ class VideoDetailsFragment : DetailsSupportFragment() {
     }
 
     private fun viewMediaDetails(media: MediaContent, viewHolder: Presenter.ViewHolder?) {
-        val intent = DetailsActivity.createLaunchIntent(requireContext(), media)
+        val intent = MediaContentDetailsActivity.createLaunchIntent(requireContext(), media)
 
         val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
             requireActivity(),
             (viewHolder?.view as ImageCardView).mainImageView,
-            DetailsActivity.SHARED_ELEMENT_NAME
+            MediaContentDetailsActivity.SHARED_ELEMENT_NAME
         ).toBundle()
         startActivity(intent, bundle)
     }
@@ -283,8 +284,8 @@ class VideoDetailsFragment : DetailsSupportFragment() {
 
         private const val ARG_MEDIA = "media"
 
-        fun newInstance(media: MediaContent): VideoDetailsFragment {
-            val fragment = VideoDetailsFragment()
+        fun newInstance(media: MediaContent): MediaContentDetailsFragment {
+            val fragment = MediaContentDetailsFragment()
             fragment.arguments = Bundle().apply {
                 putParcelable(ARG_MEDIA, media)
             }
