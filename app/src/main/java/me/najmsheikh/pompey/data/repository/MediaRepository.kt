@@ -7,7 +7,7 @@ import me.najmsheikh.pompey.data.models.Movie
 import me.najmsheikh.pompey.data.models.Show
 import me.najmsheikh.pompey.data.models.Show.Season
 import me.najmsheikh.pompey.data.models.Show.Season.Episode
-import java.time.LocalDate
+import me.najmsheikh.pompey.parseAsDate
 
 /**
  * Data repository for all media content.
@@ -58,7 +58,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
                 tagline = result.tagline,
                 posterUrl = "https://image.tmdb.org/t/p/w342${result.posterUrl}",
                 backgroundUrl = "https://image.tmdb.org/t/p/original${result.backgroundUrl}",
-                releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
+                releaseDate = result.releaseDate.parseAsDate(),
                 recommendations = result.recommendations?.results?.map { rec ->
                     convertMediaModel(rec)
                 } ?: emptyList(),
@@ -75,7 +75,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
                 tagline = result.tagline,
                 posterUrl = "https://image.tmdb.org/t/p/w342${result.posterUrl}",
                 backgroundUrl = "https://image.tmdb.org/t/p/original${result.backgroundUrl}",
-                releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
+                releaseDate = result.releaseDate.parseAsDate(),
                 recommendations = result.recommendations?.results?.map { rec ->
                     convertMediaModel(rec)
                 } ?: emptyList()
@@ -91,7 +91,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
             seasonNumber = result.seasonNumber ?: 1,
             description = result.description,
             posterUrl = "https://image.tmdb.org/t/p/w342${result.posterUrl}",
-            releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
+            releaseDate = result.releaseDate.parseAsDate(),
             episodes = result.episodes?.map { episode ->
                 convertEpisodeModel(showId, result.seasonNumber ?: 1, episode)
             } ?: emptyList()
@@ -108,7 +108,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
             title = result.title,
             description = result.description,
             posterUrl = "https://image.tmdb.org/t/p/original${result.posterUrl}",
-            releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
+            releaseDate = result.releaseDate.parseAsDate(),
         )
     }
 }
