@@ -36,6 +36,18 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
         return convertMediaModel(showResponse) as Show
     }
 
+    suspend fun getSeasonDetails(showId: String, seasonNumber: Int): Season {
+        val result = tmdbApiService.getShowSeasonDetails(showId, seasonNumber)
+
+        return convertSeasonModel(showId, result)
+    }
+
+    suspend fun getEpisodeDetails(showId: String, seasonNumber: Int, episodeNumber: Int): Episode {
+        val result = tmdbApiService.getEpisodeDetails(showId, seasonNumber, episodeNumber)
+
+        return convertEpisodeModel(showId, seasonNumber, result)
+    }
+
     private fun convertMediaModel(result: Result): MediaContent {
         return if (result.mediaType == "tv" || !result.seasons.isNullOrEmpty()) {
             Show(
@@ -51,7 +63,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
                     convertMediaModel(rec)
                 } ?: emptyList(),
                 seasons = result.seasons?.map { season ->
-                    convertSeasonModel(season)
+                    convertSeasonModel(result.id.toString(), season)
                 } ?: emptyList()
             )
         } else {
@@ -71,28 +83,31 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
         }
     }
 
-    private fun convertSeasonModel(result: Result): Season {
+    private fun convertSeasonModel(showId: String, result: Result): Season {
         return Season(
             id = result.id.toString(),
+            showId = showId,
             title = result.title,
             seasonNumber = result.seasonNumber ?: 1,
             description = result.description,
-            posterUrl = result.posterUrl,
+            posterUrl = "https://image.tmdb.org/t/p/w342${result.posterUrl}",
             releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
             episodes = result.episodes?.map { episode ->
-                convertEpisodeModel(episode)
+                convertEpisodeModel(showId, result.seasonNumber ?: 1, episode)
             } ?: emptyList()
         )
     }
 
-    private fun convertEpisodeModel(result: Result): Episode {
+    private fun convertEpisodeModel(showId: String, seasonNumber: Int, result: Result): Episode {
         return Episode(
             id = result.id.toString(),
             imdbId = result.imdbId,
+            showId = showId,
+            seasonNumber = seasonNumber,
             episodeNumber = result.episodeNumber ?: 1,
             title = result.title,
             description = result.description,
-            posterUrl = result.posterUrl,
+            posterUrl = "https://image.tmdb.org/t/p/original${result.posterUrl}",
             releaseDate = result.releaseDate?.let { LocalDate.parse(it) },
         )
     }

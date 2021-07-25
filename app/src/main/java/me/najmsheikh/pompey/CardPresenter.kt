@@ -7,13 +7,23 @@ import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
 import me.najmsheikh.pompey.data.models.MediaContent
+import me.najmsheikh.pompey.data.models.Movie
+import me.najmsheikh.pompey.data.models.Show
+import me.najmsheikh.pompey.data.models.Show.Season
+import me.najmsheikh.pompey.data.models.Show.Season.Episode
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle.LONG
 import kotlin.properties.Delegates
 
 /**
  * A CardPresenter is used to generate Views and bind Objects to them on demand.
  * It contains an ImageCardView.
  */
-class CardPresenter : Presenter() {
+class CardPresenter(
+    private val cardWidth: Int = 313,
+    private val cardHeight: Int = 470,
+    private val shouldShowPoster: Boolean = true,
+) : Presenter() {
 
     private var defaultPoster: Drawable? = null
     private var selectedBackgroundColor: Int by Delegates.notNull()
@@ -43,14 +53,21 @@ class CardPresenter : Presenter() {
         val cardView = viewHolder.view as ImageCardView
 
         cardView.titleText = media.title
-        cardView.contentText = media.releaseDate.toString()
-        cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
-        Glide.with(viewHolder.view.context)
-            .load(media.posterUrl)
-            .centerCrop()
-            .fitCenter()
-            .error(defaultPoster)
-            .into(cardView.mainImageView)
+        cardView.contentText = when (media) {
+            is Movie -> viewHolder.view.context.getString(R.string.label_movie)
+            is Show -> viewHolder.view.context.getString(R.string.label_show)
+            is Season -> null
+            is Episode -> media.releaseDate?.format(DateTimeFormatter.ofLocalizedDate(LONG))
+        }
+        cardView.setMainImageDimensions(cardWidth, cardHeight)
+        if (shouldShowPoster) {
+            Glide.with(viewHolder.view.context)
+                .load(media.posterUrl)
+                .centerCrop()
+                .fitCenter()
+                .error(defaultPoster)
+                .into(cardView.mainImageView)
+        }
     }
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder) {
@@ -68,8 +85,4 @@ class CardPresenter : Presenter() {
         view.setInfoAreaBackgroundColor(color)
     }
 
-    companion object {
-        private const val CARD_WIDTH = 313
-        private const val CARD_HEIGHT = 470
-    }
 }

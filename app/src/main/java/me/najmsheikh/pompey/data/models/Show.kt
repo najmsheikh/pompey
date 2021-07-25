@@ -1,6 +1,5 @@
 package me.najmsheikh.pompey.data.models
 
-import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 
@@ -23,24 +22,34 @@ data class Show(
 
     @Parcelize
     data class Season(
-        val id: String,
+        override val id: String,
+        override val imdbId: String? = null,
+        val showId: String,
         val seasonNumber: Int,
-        val title: String,
-        val description: String,
-        val posterUrl: String?,
-        val releaseDate: LocalDate?,
+        override val title: String,
+        override val description: String,
+        override val posterUrl: String?,
+        override val releaseDate: LocalDate?,
         val episodes: List<Episode>,
-    ) : Parcelable {
+        override val tagline: String? = null,
+        override val backgroundUrl: String? = null,
+        override val recommendations: List<MediaContent> = emptyList(),
+    ) : MediaContent {
 
         @Parcelize
         data class Episode(
-            val id: String,
-            val imdbId: String?,
+            override val id: String,
+            override val imdbId: String?,
+            val showId: String,
+            val seasonNumber: Int,
             val episodeNumber: Int,
-            val title: String,
-            val description: String,
-            val posterUrl: String?,
-            val releaseDate: LocalDate?,
-        ) : Parcelable
+            override val title: String,
+            override val description: String,
+            override val posterUrl: String?,
+            override val releaseDate: LocalDate?,
+            override val tagline: String? = null,
+            override val backgroundUrl: String? = null,
+            override val recommendations: List<MediaContent> = emptyList(),
+        ) : MediaContent
     }
 }

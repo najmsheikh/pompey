@@ -66,6 +66,6 @@ interface TmdbApiService : ApiService {
         @Path("tv_id") showId: String,
         @Path("season_number") seasonNumber: Int,
         @Path("episode_number") episodeNumber: Int,
-    )
+    ): Result
 
 }

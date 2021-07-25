@@ -6,7 +6,7 @@ import java.time.LocalDate
 /**
  * Meta-data regarding a media content.
  */
-interface MediaContent : Parcelable {
+sealed interface MediaContent : Parcelable {
     val id: String
     val imdbId: String?
     val title: String
