@@ -24,6 +24,17 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
         return response.results.map(this::convertMediaModel)
     }
 
+    suspend fun searchForContent(searchQuery: String, pageNumber: Int = 1): List<MediaContent> {
+        val response = tmdbApiService.searchMultiple(
+            searchQuery = searchQuery,
+            pageNumber = pageNumber,
+        )
+
+        return response.results
+            .filter { result -> result.mediaType == "tv" || result.mediaType == "movie" }
+            .map(this::convertMediaModel)
+    }
+
     suspend fun getMovieDetails(id: String): Movie {
         val response = tmdbApiService.getMovieDetails(id)
 

@@ -100,7 +100,8 @@ class MainFragment : BrowseSupportFragment() {
 
     private fun setupEventListeners() {
         setOnSearchClickedListener {
-            "Implement your own in-app search".toast(requireContext())
+            val intent = VideoSearchActivity.createLaunchIntent(requireContext())
+            startActivity(intent)
         }
 
         setOnItemViewSelectedListener { _, item, _, _ ->

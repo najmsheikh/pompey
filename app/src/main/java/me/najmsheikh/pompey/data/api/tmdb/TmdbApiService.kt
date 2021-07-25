@@ -27,6 +27,20 @@ interface TmdbApiService : ApiService {
     ): Response
 
     /**
+     * Search for movies and TV shows.
+     *
+     * @param searchQuery the content to search for
+     * @param pageNumber result page number
+     * @param includeAdult whether to include adult content in the result
+     */
+    @GET("/3/search/multi")
+    suspend fun searchMultiple(
+        @Query("query") searchQuery: String,
+        @Query("page") pageNumber: Int = 1,
+        @Query("include_adult") includeAdult: Boolean = false,
+    ): Response
+
+    /**
      * Get the primary information about a movie by ID.
      *
      * @param movieId the movie ID
