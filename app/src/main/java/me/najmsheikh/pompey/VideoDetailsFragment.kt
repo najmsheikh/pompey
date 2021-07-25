@@ -180,12 +180,15 @@ class VideoDetailsFragment : DetailsSupportFragment() {
     }
 
     private fun setupRelatedContentRow(media: MediaContent) {
-        val subcategories = arrayOf(getString(R.string.related_content))
+        if (media.recommendations.isEmpty()) {
+            return
+        }
+
         val listRowAdapter = ArrayObjectAdapter(CardPresenter())
 
         media.recommendations.forEach(listRowAdapter::add)
 
-        val header = HeaderItem(0, subcategories[0])
+        val header = HeaderItem(getString(R.string.related_content))
         rowAdapter.add(ListRow(header, listRowAdapter))
         presenterSelector.addClassPresenter(ListRow::class.java, ListRowPresenter())
     }
