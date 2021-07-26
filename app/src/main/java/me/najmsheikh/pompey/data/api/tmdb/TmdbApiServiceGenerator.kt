@@ -34,7 +34,7 @@ object TmdbApiServiceGenerator : ServiceGenerator {
     override val apiService: TmdbApiService by lazy {
         val retrofit = Retrofit.Builder()
             .client(okHttpClient)
-            .baseUrl("https://api.themoviedb.org")
+            .baseUrl(BuildConfig.TMDB_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

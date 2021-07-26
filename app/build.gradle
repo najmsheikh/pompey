@@ -19,6 +19,7 @@ android {
         versionName "1.0"
 
         buildConfigField "String", "TMDB_API_KEY", tmdbApiKey
+        buildConfigField "String", "TMDB_BASE_URL", tmdbBaseUrl
     }
 
     buildTypes {
