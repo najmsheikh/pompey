@@ -7,7 +7,7 @@ data class Result(
         alternate = ["first_air_date", "air_date"]) val releaseDate: String?,
     @SerializedName("backdrop_path") val backgroundUrl: String?,
     @SerializedName("id") val id: Int,
-    @SerializedName("imdb_id") val imdbId: String?,
+    @SerializedName("external_ids") val ids: Ids?,
     @SerializedName("poster_path", alternate = ["still_path"]) val posterUrl: String,
     @SerializedName("title", alternate = ["name"]) val title: String,
     @SerializedName("overview") val description: String,
@@ -18,6 +18,10 @@ data class Result(
     @SerializedName("season_number") val seasonNumber: Int?,
     @SerializedName("episodes") val episodes: List<Result>?,
     @SerializedName("episode_number") val episodeNumber: Int?,
+)
+
+data class Ids(
+    @SerializedName("imdb_id") val imdbId: String?,
 )
 
 data class Response(

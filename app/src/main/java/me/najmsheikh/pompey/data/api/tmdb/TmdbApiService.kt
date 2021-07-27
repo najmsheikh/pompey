@@ -45,7 +45,7 @@ interface TmdbApiService : ApiService {
      *
      * @param movieId the movie ID
      */
-    @GET("/3/movie/{movie_id}?append_to_response=recommendations")
+    @GET("/3/movie/{movie_id}?append_to_response=external_ids,recommendations")
     suspend fun getMovieDetails(@Path("movie_id") movieId: String): Result
 
     /**
@@ -53,7 +53,7 @@ interface TmdbApiService : ApiService {
      *
      * @param showId the show ID
      */
-    @GET("/3/tv/{tv_id}?append_to_response=recommendations")
+    @GET("/3/tv/{tv_id}?append_to_response=external_ids,recommendations")
     suspend fun getShowDetails(@Path("tv_id") showId: String): Result
 
     /**

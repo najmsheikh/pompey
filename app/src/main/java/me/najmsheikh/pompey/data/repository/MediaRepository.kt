@@ -63,7 +63,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
         return if (result.mediaType == "tv" || !result.seasons.isNullOrEmpty()) {
             Show(
                 id = result.id.toString(),
-                imdbId = result.imdbId,
+                imdbId = result.ids?.imdbId,
                 title = result.title,
                 description = result.description,
                 tagline = result.tagline,
@@ -80,7 +80,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
         } else {
             Movie(
                 id = result.id.toString(),
-                imdbId = result.imdbId,
+                imdbId = result.ids?.imdbId,
                 title = result.title,
                 description = result.description,
                 tagline = result.tagline,
@@ -112,7 +112,7 @@ class MediaRepository(private val tmdbApiService: TmdbApiService) {
     private fun convertEpisodeModel(showId: String, seasonNumber: Int, result: Result): Episode {
         return Episode(
             id = result.id.toString(),
-            imdbId = result.imdbId,
+            imdbId = result.ids?.imdbId,
             showId = showId,
             seasonNumber = seasonNumber,
             episodeNumber = result.episodeNumber ?: 1,
