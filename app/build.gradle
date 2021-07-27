@@ -20,6 +20,7 @@ android {
 
         buildConfigField "String", "TMDB_API_KEY", tmdbApiKey
         buildConfigField "String", "TMDB_BASE_URL", tmdbBaseUrl
+        buildConfigField "String", "SOURCERER_BASE_URL", sourcererBaseUrl
     }
 
     buildTypes {

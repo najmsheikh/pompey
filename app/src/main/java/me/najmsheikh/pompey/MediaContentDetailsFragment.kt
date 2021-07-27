@@ -3,7 +3,6 @@ package me.najmsheikh.pompey
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.leanback.app.DetailsSupportFragment
@@ -29,13 +28,16 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import me.najmsheikh.pompey.data.api.sourcerer.SourcererApiServiceGenerator
 import me.najmsheikh.pompey.data.api.tmdb.TmdbApiServiceGenerator
 import me.najmsheikh.pompey.data.models.MediaContent
+import me.najmsheikh.pompey.data.models.MediaContentSource
 import me.najmsheikh.pompey.data.models.Movie
 import me.najmsheikh.pompey.data.models.Show
 import me.najmsheikh.pompey.data.models.Show.Season
 import me.najmsheikh.pompey.data.models.Show.Season.Episode
 import me.najmsheikh.pompey.data.repository.MediaRepository
+import me.najmsheikh.pompey.data.repository.SourceRepository
 import kotlin.math.roundToInt
 
 /**
@@ -49,6 +51,7 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
     private lateinit var rowAdapter: ArrayObjectAdapter
     private lateinit var episodeRowAdapter: ArrayObjectAdapter
     private lateinit var mediaRepository: MediaRepository
+    private lateinit var sourceRepository: SourceRepository
 
     private var seasonLoadingJob: Job? = null
 
@@ -69,6 +72,7 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
         presenterSelector = ClassPresenterSelector()
         rowAdapter = ArrayObjectAdapter(presenterSelector)
         mediaRepository = MediaRepository(TmdbApiServiceGenerator.apiService)
+        sourceRepository = SourceRepository(SourcererApiServiceGenerator.apiService)
         onItemViewClickedListener = ItemViewClickedListener()
 
         lifecycleScope.launchWhenCreated {
@@ -77,6 +81,7 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
                 is Show -> mediaRepository.getShowDetails(passedMedia.id)
                 is Episode -> mediaRepository.getEpisodeDetails(
                     passedMedia.showId,
+                    passedMedia.showImdbId,
                     passedMedia.seasonNumber,
                     passedMedia.episodeNumber
                 )
@@ -88,8 +93,23 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
                 return@launchWhenCreated
             }
 
-            setupDetailsOverviewRow(media)
-            setupDetailsOverviewRowPresenter(media)
+            val sources = when (media) {
+                is Movie -> media.imdbId?.let { imdbId ->
+                    sourceRepository.getMovieSources(imdbId)
+                }
+                is Episode -> media.showImdbId?.let { imdbId ->
+                    sourceRepository.getEpisodeSources(
+                        imdbId,
+                        media.seasonNumber,
+                        media.episodeNumber
+                    )
+                }
+                else -> null
+            } ?: emptyList()
+            val sourceMap = sources.associateBy { it.hashCode().toLong() }
+
+            setupDetailsOverviewRow(media, sources)
+            setupDetailsOverviewRowPresenter(media, sourceMap)
             setupSeasonsContentRow(media)
             setupEpisodesContentRow(media)
             setupRelatedContentRow(media)
@@ -123,7 +143,7 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
             })
     }
 
-    private fun setupDetailsOverviewRow(media: MediaContent) {
+    private fun setupDetailsOverviewRow(media: MediaContent, sources: List<MediaContentSource>) {
         val row = DetailsOverviewRow(media)
 
         if (media !is Episode) {
@@ -150,12 +170,12 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
 
         val actionAdapter = ArrayObjectAdapter()
 
-        if (media is Episode || media is Movie) {
+        sources.forEach { source ->
             actionAdapter.add(
                 Action(
-                    ACTION_WATCH,
+                    source.hashCode().toLong(),
                     resources.getString(R.string.action_watch),
-                    null,
+                    source.title,
                     ContextCompat.getDrawable(requireContext(), R.drawable.ic_play)
                 )
             )
@@ -165,7 +185,10 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
         rowAdapter.add(row)
     }
 
-    private fun setupDetailsOverviewRowPresenter(media: MediaContent) {
+    private fun setupDetailsOverviewRowPresenter(
+        media: MediaContent,
+        sourceMap: Map<Long, MediaContentSource>,
+    ) {
         // Set detail background.
         val detailsPresenter = FullWidthDetailsOverviewRowPresenter(DetailsDescriptionPresenter())
         detailsPresenter.backgroundColor = ContextCompat.getColor(
@@ -181,12 +204,14 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
         detailsPresenter.isParticipatingEntranceTransition = true
 
         detailsPresenter.onActionClickedListener = OnActionClickedListener { action ->
-            if (action.id == ACTION_WATCH) {
-                val intent =
-                    MediaContentPlaybackActivity.createLaunchIntent(requireContext(), media)
+            val source = sourceMap[action.id]
+            source?.let {
+                val intent = MediaContentPlaybackActivity.createLaunchIntent(
+                    context = requireContext(),
+                    media = media,
+                    source = source
+                )
                 startActivity(intent)
-            } else {
-                Toast.makeText(requireContext(), action.toString(), Toast.LENGTH_SHORT).show()
             }
         }
         presenterSelector.addClassPresenter(DetailsOverviewRow::class.java, detailsPresenter)
@@ -258,7 +283,11 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
     private fun loadSeasonDetails(season: Season) {
         seasonLoadingJob?.cancel()
         seasonLoadingJob = lifecycleScope.launch {
-            val fullSeason = mediaRepository.getSeasonDetails(season.showId, season.seasonNumber)
+            val fullSeason = mediaRepository.getSeasonDetails(
+                showId = season.showId,
+                showImdbId = season.showImdbId,
+                seasonNumber = season.seasonNumber
+            )
             episodeRowAdapter.setItems(fullSeason.episodes, null)
         }
     }
@@ -280,8 +309,6 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
     }
 
     companion object {
-        private const val ACTION_WATCH = 100L
-
         private const val ARG_MEDIA = "media"
 
         fun newInstance(media: MediaContent): MediaContentDetailsFragment {
