@@ -35,8 +35,12 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val media = arguments?.getParcelable(ARG_MEDIA) as MediaContent
-        val source = arguments?.getParcelable(ARG_SOURCE) as MediaContentSource
+        val media = arguments?.getParcelable(ARG_MEDIA) as MediaContent?
+        val source = arguments?.getParcelable(ARG_SOURCE) as MediaContentSource?
+        if (media == null || source == null) {
+            activity?.finish()
+            return
+        }
 
         val glueHost = VideoSupportFragmentGlueHost(this@MediaContentPlaybackFragment)
         playerAdapter = MediaPlayerAdapter(context)

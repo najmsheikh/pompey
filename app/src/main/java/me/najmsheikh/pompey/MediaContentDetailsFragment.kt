@@ -67,7 +67,7 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val passedMedia = arguments?.getParcelable(ARG_MEDIA) as MediaContent
+        val passedMedia = arguments?.getParcelable(ARG_MEDIA) as MediaContent?
         detailsBackground = DetailsSupportFragmentBackgroundController(this)
         presenterSelector = ClassPresenterSelector()
         rowAdapter = ArrayObjectAdapter(presenterSelector)

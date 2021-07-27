@@ -13,9 +13,9 @@ class MediaContentPlaybackActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            val media = intent.extras?.getParcelable(EXTRA_MEDIA) as MediaContent
-            val source = intent.extras?.getParcelable(EXTRA_SOURCE) as MediaContentSource
-            val fragment = MediaContentPlaybackFragment.newInstance(media, source)
+            val media = intent.extras?.getParcelable(EXTRA_MEDIA) as MediaContent?
+            val source = intent.extras?.getParcelable(EXTRA_SOURCE) as MediaContentSource?
+            val fragment = MediaContentPlaybackFragment.newInstance(media!!, source!!)
 
             supportFragmentManager.beginTransaction()
                 .replace(android.R.id.content, fragment)

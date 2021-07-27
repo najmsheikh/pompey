@@ -15,8 +15,8 @@ class MediaContentDetailsActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
         if (savedInstanceState == null) {
-            val media = intent.extras?.getParcelable(EXTRA_MEDIA) as MediaContent
-            val fragment = MediaContentDetailsFragment.newInstance(media)
+            val media = intent.extras?.getParcelable(EXTRA_MEDIA) as MediaContent?
+            val fragment = MediaContentDetailsFragment.newInstance(media!!)
 
             supportFragmentManager.beginTransaction()
                 .replace(R.id.details_fragment, fragment)
