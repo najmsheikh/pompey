@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
 import androidx.leanback.media.PlaybackTransportControlGlue
+import com.google.android.exoplayer2.DefaultRenderersFactory
+import com.google.android.exoplayer2.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -47,7 +49,9 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
         }
 
         val glueHost = VideoSupportFragmentGlueHost(this@MediaContentPlaybackFragment)
-        exoPlayer = SimpleExoPlayer.Builder(requireContext()).build()
+        val renderersFactory = DefaultRenderersFactory(requireContext())
+            .setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
+        exoPlayer = SimpleExoPlayer.Builder(requireContext(), renderersFactory).build()
         exoPlayer?.addAnalyticsListener(EventLogger(null))
         playerAdapter = LeanbackPlayerAdapter(requireContext(), exoPlayer as Player, 50)
 
