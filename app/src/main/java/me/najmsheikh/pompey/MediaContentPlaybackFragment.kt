@@ -3,9 +3,12 @@ package me.najmsheikh.pompey
 import android.os.Bundle
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
-import androidx.leanback.media.MediaPlayerAdapter
 import androidx.leanback.media.PlaybackTransportControlGlue
-import androidx.leanback.widget.PlaybackControlsRow
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter
+import com.google.android.exoplayer2.util.EventLogger
 import me.najmsheikh.pompey.data.models.MediaContent
 import me.najmsheikh.pompey.data.models.MediaContentSource
 
@@ -29,8 +32,9 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
         }
     }
 
-    private lateinit var transportControlGlue: PlaybackTransportControlGlue<MediaPlayerAdapter>
-    private lateinit var playerAdapter: MediaPlayerAdapter
+    private var exoPlayer: SimpleExoPlayer? = null
+    private lateinit var transportControlGlue: PlaybackTransportControlGlue<LeanbackPlayerAdapter>
+    private lateinit var playerAdapter: LeanbackPlayerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +47,9 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
         }
 
         val glueHost = VideoSupportFragmentGlueHost(this@MediaContentPlaybackFragment)
-        playerAdapter = MediaPlayerAdapter(context)
+        exoPlayer = SimpleExoPlayer.Builder(requireContext()).build()
+        exoPlayer?.addAnalyticsListener(EventLogger(null))
+        playerAdapter = LeanbackPlayerAdapter(requireContext(), exoPlayer as Player, 50)
 
         transportControlGlue = PlaybackTransportControlGlue(activity, playerAdapter)
         transportControlGlue.host = glueHost
@@ -51,13 +57,23 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
         transportControlGlue.subtitle = media.description
         transportControlGlue.isSeekEnabled = true
         transportControlGlue.playWhenPrepared()
+        exoPlayer?.playWhenReady = true
 
-        playerAdapter.setRepeatAction(PlaybackControlsRow.RepeatAction.INDEX_NONE)
-        playerAdapter.setDataSource(source.source)
+        val mediaItem = MediaItem.Builder()
+            .setUri(source.source)
+            .build()
+
+        exoPlayer?.setMediaItem(mediaItem)
+        exoPlayer?.prepare()
     }
 
     override fun onPause() {
         super.onPause()
         transportControlGlue.pause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        exoPlayer?.release()
     }
 }
