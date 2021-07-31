@@ -1,6 +1,7 @@
 package me.najmsheikh.pompey
 
 import android.os.Bundle
+import android.view.View
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
 import androidx.leanback.media.PlaybackTransportControlGlue
@@ -8,14 +9,17 @@ import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Player.Listener
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter
-import com.google.android.exoplayer2.util.EventLogger
+import com.google.android.exoplayer2.text.Cue
+import com.google.android.exoplayer2.ui.SubtitleView
+import com.google.android.exoplayer2.util.MimeTypes
 import me.najmsheikh.pompey.data.models.MediaContent
 import me.najmsheikh.pompey.data.models.MediaContentSource
 
 /** Handles video playback with media controls. */
-class MediaContentPlaybackFragment : VideoSupportFragment() {
+class MediaContentPlaybackFragment : VideoSupportFragment(), Listener {
 
     companion object {
         private const val ARG_MEDIA = "media"
@@ -37,6 +41,12 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
     private var exoPlayer: SimpleExoPlayer? = null
     private lateinit var transportControlGlue: PlaybackTransportControlGlue<LeanbackPlayerAdapter>
     private lateinit var playerAdapter: LeanbackPlayerAdapter
+    private lateinit var subtitleView: SubtitleView
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        subtitleView = view.findViewById(R.id.lb_subtitles)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,27 +58,37 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
             return
         }
 
-        val glueHost = VideoSupportFragmentGlueHost(this@MediaContentPlaybackFragment)
         val renderersFactory = DefaultRenderersFactory(requireContext())
             .setExtensionRendererMode(EXTENSION_RENDERER_MODE_PREFER)
         exoPlayer = SimpleExoPlayer.Builder(requireContext(), renderersFactory).build()
-        exoPlayer?.addAnalyticsListener(EventLogger(null))
         playerAdapter = LeanbackPlayerAdapter(requireContext(), exoPlayer as Player, 50)
 
-        transportControlGlue = PlaybackTransportControlGlue(activity, playerAdapter)
-        transportControlGlue.host = glueHost
-        transportControlGlue.title = media.title
-        transportControlGlue.subtitle = media.description
-        transportControlGlue.isSeekEnabled = true
-        transportControlGlue.playWhenPrepared()
+        transportControlGlue = PlaybackTransportControlGlue(activity, playerAdapter).apply {
+            host = VideoSupportFragmentGlueHost(this@MediaContentPlaybackFragment)
+            title = media.title
+            subtitle = media.description
+            isSeekEnabled = true
+            playWhenPrepared()
+        }
+
         exoPlayer?.playWhenReady = true
+        exoPlayer?.addListener(this)
+        exoPlayer?.prepare()
+
+        val subtitles = source.subtitles.map { subtitleSource ->
+            MediaItem.Subtitle(
+                subtitleSource.source,
+                MimeTypes.APPLICATION_SUBRIP,
+                subtitleSource.language
+            )
+        }
 
         val mediaItem = MediaItem.Builder()
             .setUri(source.source)
+            .setSubtitles(subtitles)
             .build()
 
         exoPlayer?.setMediaItem(mediaItem)
-        exoPlayer?.prepare()
     }
 
     override fun onPause() {
@@ -78,6 +98,12 @@ class MediaContentPlaybackFragment : VideoSupportFragment() {
 
     override fun onStop() {
         super.onStop()
+        exoPlayer?.removeListener(this)
         exoPlayer?.release()
     }
+
+    override fun onCues(cues: MutableList<Cue>) {
+        subtitleView.onCues(cues)
+    }
+
 }

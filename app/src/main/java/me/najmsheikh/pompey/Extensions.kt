@@ -1,6 +1,7 @@
 package me.najmsheikh.pompey
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import java.time.LocalDate
@@ -21,3 +22,5 @@ fun String?.parseAsDate(): LocalDate? {
         null
     }
 }
+
+fun String.encodeToBase64(): String = Base64.encodeToString(toByteArray(), Base64.DEFAULT)

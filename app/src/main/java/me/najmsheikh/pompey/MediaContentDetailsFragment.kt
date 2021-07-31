@@ -28,6 +28,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import me.najmsheikh.pompey.data.api.opensubs.OpenSubtitlesApiServiceGenerator
 import me.najmsheikh.pompey.data.api.sourcerer.SourcererApiServiceGenerator
 import me.najmsheikh.pompey.data.api.tmdb.TmdbApiServiceGenerator
 import me.najmsheikh.pompey.data.models.MediaContent
@@ -72,7 +73,10 @@ class MediaContentDetailsFragment : DetailsSupportFragment() {
         presenterSelector = ClassPresenterSelector()
         rowAdapter = ArrayObjectAdapter(presenterSelector)
         mediaRepository = MediaRepository(TmdbApiServiceGenerator.apiService)
-        sourceRepository = SourceRepository(SourcererApiServiceGenerator.apiService)
+        sourceRepository = SourceRepository(
+            SourcererApiServiceGenerator.apiService,
+            OpenSubtitlesApiServiceGenerator.apiService,
+        )
         onItemViewClickedListener = ItemViewClickedListener()
 
         lifecycleScope.launchWhenCreated {

@@ -5,8 +5,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class MediaContentSource(
-    val title: String,
+data class SubtitleSource(
+    val language: String,
     val source: Uri,
-    val subtitles: List<SubtitleSource> = emptyList(),
 ) : Parcelable
